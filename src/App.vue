@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <swiper>
+    <swiper :autoplay="autoPlay" :duration="duration" :slidetype="slideType">
       <div v-for="(item, index) in recommends" :key="index">
         <a :href="item.linkUrl">
           <img :src="item.picUrl" alt="">
@@ -44,7 +44,10 @@ export default {
         id: 0,
         linkUrl: 'https://y.qq.com/m/act/chunwan2018/v3/index.html?ADTAG=jiaodiantu',
         picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M0000044SNAC19jwin.jpg'
-      }]
+      }],
+      autoPlay: 3000,
+      duration: 500,
+      slideType: 'left'
     }
   },
   components: {
