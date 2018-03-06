@@ -106,7 +106,6 @@ export default {
       } else {
         this.animateImg(false, 0)
       }
-      this.sliderGroupLeft()
     },
     goBackImg (time) {
       this.animateTime = time
