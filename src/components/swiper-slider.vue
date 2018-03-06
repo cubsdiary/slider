@@ -2,8 +2,11 @@
   <div class="">
     <div class="slider" @touchmove.prevent ref="slider">
       <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
-        <slot>
-        </slot>
+        <div v-for="(item, index) in imgs" :key="index">
+          <a :href="item.linkUrl">
+            <img :src="item.picUrl" alt="">
+          </a>
+        </div>
       </div>
     </div>
     <p>StartX:{{touchInfo.startX}}</p>
@@ -34,6 +37,17 @@ export default {
     },
     slidetype: {
       default: 'right'
+    },
+    data: {
+      required: true
+    }
+  },
+  computed: {
+    imgs () {
+      let imgs = this.data
+      imgs.push(this.data[0])
+      imgs.unshift(this.data[this.data.length - 1])
+      return imgs
     }
   },
   data () {
@@ -58,14 +72,15 @@ export default {
     }
   },
   methods: {
+    /*       手指触屏触发        */
     touchS (event) {
-      console.log('start')
       clearTimeout(this.timer)
       let _touchStart = event.touches[0]
       this.touchInfo.startX = _touchStart.pageX
       this.touchInfo.startY = _touchStart.pageY
       this.touchInfo.startTime = parseInt(event.timeStamp)
     },
+    /*       手指移开触发        */
     touchE (event) {
       let _touchEnd = event.changedTouches[0]
       this.touchInfo.endX = _touchEnd.pageX
@@ -97,6 +112,7 @@ export default {
         this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderDom * this.duration))
       }
     },
+    /*       手指触屏移动触发        */
     touchM (event) {
       let _touchMove = event.touches[0]
       this.touchInfo.moveX = _touchMove.pageX
@@ -107,54 +123,7 @@ export default {
         this.animateImg(false, 0)
       }
     },
-    goBackImg (time) {
-      this.animateTime = time
-      this.domLeft = -this.imgIndex * this.sliderDom
-      this.translate3d = 'translate3d(' + (this.domLeft) + 'px, 0px, 0px)'
-    },
-    nextImg (text) {
-      this.imgIndex += 1
-      let time = 0
-      if (text === 'init') {
-        time = this.duration
-      } else {
-        time = parseInt((this.sliderDom - Math.abs(this.bridge)) / this.sliderDom * this.duration)
-      }
-      this.animateImg(true, time)
-    },
-    prevImg (text) {
-      this.imgIndex -= 1
-      let time = 0
-      if (text === 'init') {
-        time = this.duration
-      } else {
-        time = parseInt((this.sliderDom - Math.abs(this.bridge)) / this.sliderDom * this.duration)
-      }
-      this.animateImg(true, time)
-    },
-    init () {
-      this.sliderDom = this.$refs.slider.offsetWidth
-      this.goBackImg(0)
-      this.player()
-    },
-    player () {
-      this.timer = setTimeout(() => {
-        if (this.slidetype === 'right') {
-          this.prevImg('init')
-        } else if (this.slidetype === 'left') {
-          this.nextImg('init')
-        }
-      }, this.autoplay)
-    },
-    animateImg (flag, time) {
-      if (flag) {
-        this.goBackImg(time)
-      } else {
-        this.animateTime = 0
-        this.bridge = this.touchInfo.startX - this.touchInfo.moveX
-        this.translate3d = 'translate3d(' + (this.domLeft - this.bridge) + 'px, 0px, 0px)'
-      }
-    },
+    /*  动画结束监听   */
     transitionEnd () {
       this.bridge = 0
       clearTimeout(this.timer)
@@ -168,6 +137,59 @@ export default {
       if (this.autoplay) {
         this.player()
       }
+    },
+    /*      右向左滑动， 下一页        */
+    nextImg (text) {
+      this.imgIndex += 1
+      let time = 0
+      if (text === 'init') {
+        time = this.duration
+      } else {
+        time = parseInt((this.sliderDom - Math.abs(this.bridge)) / this.sliderDom * this.duration)
+      }
+      this.animateImg(true, time)
+    },
+    /*      左向右滑动， 下一页        */
+    prevImg (text) {
+      this.imgIndex -= 1
+      let time = 0
+      if (text === 'init') {
+        time = this.duration
+      } else {
+        time = parseInt((this.sliderDom - Math.abs(this.bridge)) / this.sliderDom * this.duration)
+      }
+      this.animateImg(true, time)
+    },
+    goBackImg (time) {
+      this.animateTime = time
+      this.domLeft = -this.imgIndex * this.sliderDom
+      this.translate3d = 'translate3d(' + (this.domLeft) + 'px, 0px, 0px)'
+    },
+    /*      动画效果，设置移动后的坐标 和 动画时间        */
+    animateImg (flag, time) {
+      if (flag) {
+        this.goBackImg(time)
+      } else {
+        this.animateTime = 0
+        this.bridge = this.touchInfo.startX - this.touchInfo.moveX
+        this.translate3d = 'translate3d(' + (this.domLeft - this.bridge) + 'px, 0px, 0px)'
+      }
+    },
+    /*      初始化设置        */
+    init () {
+      this.sliderDom = this.$refs.slider.offsetWidth
+      this.goBackImg(0)
+      this.player()
+    },
+    /*      自动播放       */
+    player () {
+      this.timer = setTimeout(() => {
+        if (this.slidetype === 'right') {
+          this.prevImg('init')
+        } else if (this.slidetype === 'left') {
+          this.nextImg('init')
+        }
+      }, this.autoplay)
     }
   },
   mounted () {

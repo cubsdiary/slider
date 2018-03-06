@@ -1,11 +1,6 @@
 <template>
   <div id="app">
-    <swiper :autoplay="autoPlay" :duration="duration" :slidetype="slideType">
-      <div v-for="(item, index) in recommends" :key="index">
-        <a :href="item.linkUrl">
-          <img :src="item.picUrl" alt="">
-        </a>
-      </div>
+    <swiper :autoplay="autoPlay" :duration="duration" :slidetype="slideType" :data="recommends">
     </Swiper>
   </div>
 </template>
@@ -17,10 +12,6 @@ export default {
   data () {
     return {
       recommends: [{
-        id: 4,
-        linkUrl: 'https://c.y.qq.com/node/m/client/music_headline/index.html?_hidehd=1&_button=2&zid=619582',
-        picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M000000Wq2eW3VkzJ9.jpg'
-      },{
         id: 0,
         linkUrl: 'https://y.qq.com/m/act/chunwan2018/v3/index.html?ADTAG=jiaodiantu',
         picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M0000044SNAC19jwin.jpg'
@@ -40,10 +31,6 @@ export default {
         id: 4,
         linkUrl: 'https://c.y.qq.com/node/m/client/music_headline/index.html?_hidehd=1&_button=2&zid=619582',
         picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M000000Wq2eW3VkzJ9.jpg'
-      },{
-        id: 0,
-        linkUrl: 'https://y.qq.com/m/act/chunwan2018/v3/index.html?ADTAG=jiaodiantu',
-        picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M0000044SNAC19jwin.jpg'
       }],
       autoPlay: 3000,
       duration: 500,
