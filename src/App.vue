@@ -7,6 +7,7 @@
 </template>
 
 <script>
+// import Swiper from '@/components/swiper-slider-special'
 import Swiper from '@/components/swiper-slider-animate'
 export default {
   name: 'App',
@@ -33,8 +34,8 @@ export default {
         linkUrl: 'https://c.y.qq.com/node/m/client/music_headline/index.html?_hidehd=1&_button=2&zid=619582',
         picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M000000Wq2eW3VkzJ9.jpg'
       }],
-      autoPlay: false,
-      duration: 500,
+      autoPlay: 5000,
+      duration: 5000,
       slideType: 'left',
       color: '#000',
       pagination: false

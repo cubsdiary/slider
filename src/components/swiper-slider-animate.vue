@@ -1,17 +1,15 @@
 <template>
-  <div class="">
-    <div class="slider" @touchmove.prevent ref="slider">
-      <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
-        <div class="slider-dots" v-for="(item, index) in imgs" :key="index" :style="{width: groupWidth(index), animation: groupAnimateTime}">
-          <a :href="item.linkUrl">
-            <img :src="item.picUrl" alt="" >
-          </a>
-        </div>
+  <div class="slider" @touchmove.prevent ref="slider">
+    <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
+      <div class="slider-dots" v-for="(item, index) in imgs" :key="index" :style="{width: groupWidth(index), animation: groupAnimateTime}">
+        <a :href="item.linkUrl">
+          <img :src="item.picUrl" alt="" >
+        </a>
       </div>
-      <div class="pagination" v-if="pagination">
-        <div class="dots" :class="{'dots-active': item === showNumber}" :style="{backgroundColor: color}" v-for="item in slidesNumber" :key="item">
+    </div>
+    <div class="pagination" v-if="pagination">
+      <div class="dots" :class="{'dots-active': item === showNumber}" :style="{backgroundColor: color}" v-for="item in slidesNumber" :key="item">
 
-        </div>
       </div>
     </div>
   </div>
@@ -65,7 +63,14 @@ export default {
       sliderGroupDom: 0,
       sliderGroupNow: 0,
       screenWidth: 0,
-      groupAnimateTime: 'all 500ms forwards'
+      groupAnimateTime: 'all 5s forwards',
+      miniWidth: 0.5,
+      bigWidth: 0.88,
+      cutwidth: 0,
+      addwidth: 0,
+      prevDom: null,
+      nextDom: null,
+      nowDom: null
     }
   },
   computed: {
@@ -116,6 +121,7 @@ export default {
             this.nextImg()
           } else {
             this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
+            this.goBackGroup(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
           }
         } else {
           if (moveTime > 20 && moveTime < 300) {
@@ -124,10 +130,12 @@ export default {
             this.prevImg()
           } else {
             this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
+            this.goBackGroup(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
           }
         }
       } else {
         this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
+        this.goBackGroup(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
       }
     },
     /*       手指触屏移动触发        */
@@ -144,13 +152,38 @@ export default {
         this.setGroupWidth('prev')
       }
     },
+    goBackGroup (time) {
+      this.groupAnimate(time)
+      this.prevDom.style.width = (this.miniWidth * 100) + '%'
+      this.nextDom.style.width = (this.miniWidth * 100) + '%'
+      this.nowDom.style.width = (this.bigWidth * 100) + '%'
+    },
+    getGroupDom () {
+      this.prevDom = document.getElementsByClassName('slider-dots')[this.imgIndex]
+      this.nowDom = document.getElementsByClassName('slider-dots')[this.imgIndex + 1]
+      this.nextDom = document.getElementsByClassName('slider-dots')[this.imgIndex + 2]
+    },
     setGroupWidth (txt) {
-      if (txt === 'next') {
-
-      } else if (txt === 'prev') {
-
+      this.getGroupDom()
+      this.cutwidth = ((this.sliderGroupNow - (Math.abs(this.bridge) / this.sliderGroupDom) * (this.sliderGroupNow - this.sliderGroupDom))/this.screenWidth).toFixed(10)
+      this.addwidth = ((this.sliderGroupDom + (Math.abs(this.bridge) / this.sliderGroupDom) * (this.sliderGroupNow - this.sliderGroupDom))/this.screenWidth).toFixed(10)
+      if (this.cutwidth < this.miniWidth) {
+        this.cutwidth = this.miniWidth
+      } else  if (this.cutwidth > this.bigWidth) {
+        this.cutwidth = this.bigWidth
       }
-      let width = ((this.sliderGroupNow - (Math.abs(this.bridge) / this.sliderGroupNow) * (this.sliderGroupNow - this.sliderGroupDom))/this.screenWidth).toFixed(5)
+      if (this.addwidth < this.miniWidth) {
+        this.addwidth = this.miniWidth
+      } else  if (this.addwidth > this.bigWidth) {
+        this.addwidth = this.bigWidth
+      }
+      if (txt === 'next') {
+        this.nowDom.style.width = (this.cutwidth * 100) + '%'
+        this.nextDom.style.width = (this.addwidth * 100) + '%'
+      } else if (txt === 'prev') {
+        this.nowDom.style.width = (this.cutwidth * 100) + '%'
+        this.prevDom.style.width = (this.addwidth * 100) + '%'
+      }
     },
     /*  动画结束监听   */
     transitionEnd () {
@@ -180,6 +213,7 @@ export default {
         time = parseInt((this.sliderGroupNow - Math.abs(this.bridge)) / this.sliderGroupNow * this.duration)
       }
       this.animateImg(true, time)
+      console.log(this.addwidth, this.cutwidth)
     },
     /*      左向右滑动， 下一页        */
     prevImg (text) {
@@ -194,6 +228,7 @@ export default {
         time = parseInt((this.sliderGroupNow - Math.abs(this.bridge)) / this.sliderGroupNow * this.duration)
       }
       this.animateImg(true, time)
+      console.log(this.addwidth, this.cutwidth)
     },
     flipNumber (text) {
       if (text === 'next') {
@@ -209,9 +244,9 @@ export default {
     },
     groupWidth (index) {
       if (index === this.imgIndex + 1) {
-        return '88%'
+        return this.bigWidth * 100 + '%'
       } else {
-        return '80%'
+        return this.miniWidth * 100 + '%'
       }
     },
     groupAnimate (time) {
@@ -230,17 +265,17 @@ export default {
       } else {
         this.animateTime = 0
         this.bridge = this.touchInfo.startX - this.touchInfo.moveX
-        this.translate3d = 'translate3d(' + (this.domLeft - this.bridge) + 'px, 0px, 0px)'
+        this.translate3d = 'translate3d(' + (this.domLeft - this.bridge/this.screenWidth*this.sliderGroupNow) + 'px, 0px, 0px)'
       }
     },
     /*      初始化设置        */
     init () {
       this.screenWidth = this.$refs.slider.offsetWidth
-      this.sliderGroupDom = parseFloat((this.screenWidth * 0.7).toFixed(2))
-      this.sliderGroupNow = parseFloat((this.screenWidth * 0.88).toFixed(2))
+      this.sliderGroupDom = parseFloat((this.screenWidth * this.miniWidth).toFixed(2))
+      this.sliderGroupNow = parseFloat((this.screenWidth * this.bigWidth).toFixed(2))
       this.sliderDom = -(this.sliderGroupDom - (this.screenWidth - this.sliderGroupNow) / 2)
       this.goBackImg(0)
-      // this.player()
+      this.player()
     },
     /*      自动播放       */
     player () {
@@ -264,6 +299,8 @@ export default {
   .slider{
     position: relative;
     width: 100%;
+    height: 300px;
+    background: red;
     padding: 5px 0px
     /* overflow: hidden; */
   }
@@ -298,7 +335,7 @@ export default {
     flex-shrink: 0;
     z-index: 10;
     /* 遇见过一次图片宽度很宽超过 slide 导致下一个 slide 也会有这个图片 */
-    /* overflow: hidden; */
+    overflow: hidden;
   }
   .slider-group .slider-dots a{
     display: block;
