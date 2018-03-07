@@ -2,24 +2,18 @@
   <div class="">
     <div class="slider" @touchmove.prevent ref="slider">
       <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
-        <div v-for="(item, index) in imgs" :key="index">
+        <div class="slider-dots" v-for="(item, index) in imgs" :key="index">
           <a :href="item.linkUrl">
             <img :src="item.picUrl" alt="">
           </a>
         </div>
       </div>
+      <div class="pagination" v-if="pagination">
+        <div class="dots" :class="{'dots-active': item === showNumber}" :style="{backgroundColor: color}" v-for="item in slidesNumber" :key="item">
+
+        </div>
+      </div>
     </div>
-    <p>StartX:{{touchInfo.startX}}</p>
-    <p>StartY:{{touchInfo.startY}}</p>
-    <p>endX:{{touchInfo.endX}}</p>
-    <p>endY:{{touchInfo.endY}}</p>
-    <p>moveX:{{touchInfo.moveX}}</p>
-    <p>moveY:{{touchInfo.moveY}}</p>
-    <p>index:{{imgIndex}}</p>
-    <p>domLeft:{{domLeft}}</p>
-    <p>bridge:{{bridge}}</p>
-    <p>startTime:{{touchInfo.startTime}}</p>
-    <p>endTime:{{touchInfo.endTime}}</p>
   </div>
 </template>
 
@@ -38,16 +32,14 @@ export default {
     slidetype: {
       default: 'right'
     },
-    data: {
+    recommends: {
       required: true
-    }
-  },
-  computed: {
-    imgs () {
-      let imgs = this.data
-      imgs.push(this.data[0])
-      imgs.unshift(this.data[this.data.length - 1])
-      return imgs
+    },
+    color: {
+      default: '#fff'
+    },
+    pagination: {
+      default: true
     }
   },
   data () {
@@ -63,12 +55,36 @@ export default {
         endTime: 0
       },
       imgIndex: 1,
+      showNumber: 0,
       domLeft: 0,
       bridge: 0,
       translate3d: '',
-      sliderDom: '',
+      sliderDom: 0,
       timer: null,
-      animateTime: 0
+      animateTime: 0,
+      sliderGroupDom: 0,
+      screenWidth: 0
+    }
+  },
+  computed: {
+    slidesNumber () {
+      let number = []
+      for(let i = 0; i < this.recommends.length - 4; i++) {
+        number.push(i)
+      }
+      return number
+    },
+    imgs () {
+      let imgs = this.recommends
+      let start = this.recommends[0]
+      let startNext = this.recommends[1]
+      let endPrev = this.recommends[this.recommends.length - 2]
+      let end = this.recommends[this.recommends.length - 1]
+      imgs.push(start)
+      imgs.push(startNext)
+      imgs.unshift(end)
+      imgs.unshift(endPrev)
+      return imgs
     }
   },
   methods: {
@@ -94,22 +110,22 @@ export default {
         if (X > 0) {
           if (moveTime > 20 && moveTime < 300) {
             this.nextImg()
-          } else if (X >= this.sliderDom/2) {
+          } else if (X >= this.sliderGroupDom/2) {
             this.nextImg()
           } else {
-            this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderDom * this.duration))
+            this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupDom * this.duration))
           }
         } else {
           if (moveTime > 20 && moveTime < 300) {
             this.prevImg()
-          } else if (Math.abs(X) >= this.sliderDom/2) {
+          } else if (Math.abs(X) >= this.sliderGroupDom/2) {
             this.prevImg()
           } else {
-            this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderDom * this.duration))
+            this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupDom * this.duration))
           }
         }
       } else {
-        this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderDom * this.duration))
+        this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupDom * this.duration))
       }
     },
     /*       手指触屏移动触发        */
@@ -127,11 +143,11 @@ export default {
     transitionEnd () {
       this.bridge = 0
       clearTimeout(this.timer)
-      if (this.imgIndex >= 6) {
+      if (this.imgIndex >= this.imgs.length - 3) {
         this.imgIndex = 1
         this.goBackImg(0)
       } else if (this.imgIndex <= 0) {
-        this.imgIndex = 5
+        this.imgIndex = this.slidesNumber.length
         this.goBackImg(0)
       }
       if (this.autoplay) {
@@ -140,29 +156,47 @@ export default {
     },
     /*      右向左滑动， 下一页        */
     nextImg (text) {
+      if (this.pagination) {
+        this.flipNumber('next')
+      }
       this.imgIndex += 1
       let time = 0
       if (text === 'init') {
         time = this.duration
       } else {
-        time = parseInt((this.sliderDom - Math.abs(this.bridge)) / this.sliderDom * this.duration)
+        time = parseInt((this.sliderGroupDom - Math.abs(this.bridge)) / this.sliderGroupDom * this.duration)
       }
       this.animateImg(true, time)
     },
     /*      左向右滑动， 下一页        */
     prevImg (text) {
+      if (this.pagination) {
+        this.flipNumber('prev')
+      }
       this.imgIndex -= 1
       let time = 0
       if (text === 'init') {
         time = this.duration
       } else {
-        time = parseInt((this.sliderDom - Math.abs(this.bridge)) / this.sliderDom * this.duration)
+        time = parseInt((this.sliderGroupDom - Math.abs(this.bridge)) / this.sliderGroupDom * this.duration)
       }
       this.animateImg(true, time)
     },
+    flipNumber (text) {
+      if (text === 'next') {
+        this.showNumber += 1
+      } else if (text === 'prev') {
+        this.showNumber -= 1
+      }
+      if (this.showNumber > this.slidesNumber.length - 1) {
+        this.showNumber = 0
+      } else if (this.showNumber < 0){
+        this.showNumber = this.slidesNumber.length - 1
+      }
+    },
     goBackImg (time) {
       this.animateTime = time
-      this.domLeft = -this.imgIndex * this.sliderDom
+      this.domLeft = this.sliderDom - this.imgIndex * this.sliderGroupDom
       this.translate3d = 'translate3d(' + (this.domLeft) + 'px, 0px, 0px)'
     },
     /*      动画效果，设置移动后的坐标 和 动画时间        */
@@ -177,7 +211,9 @@ export default {
     },
     /*      初始化设置        */
     init () {
-      this.sliderDom = this.$refs.slider.offsetWidth
+      this.screenWidth = this.$refs.slider.offsetWidth
+      this.sliderGroupDom = document.querySelector('.slider-dots').offsetWidth
+      this.sliderDom = -(this.sliderGroupDom - (this.screenWidth - this.sliderGroupDom) / 2)
       this.goBackImg(0)
       this.player()
     },
@@ -203,41 +239,56 @@ export default {
   .slider{
     position: relative;
     width: 100%;
-    height: auto;
-    overflow: hidden;
+    padding: 5px 0px
+    /* overflow: hidden; */
+  }
+  .pagination{
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    height: 18px;
+    display: flex;
+  	align-items:center;
+  	justify-content: center;
+  }
+  .pagination .dots{
+    height: 8px;
+		width: 8px;
+		opacity: 0.5;
+		margin: 0 5px;
+		border-radius: 50%;
+  }
+  .pagination .dots-active{
+    opacity: 1;
   }
   .slider-group{
     height: 100%;
     width: 100%;
     display: flex;
   }
-  .slider-group > div {
+  .slider-group .slider-dots {
     display: flex;
     align-items:center;
     justify-content: center;
-    width: 100%;
+    width: 88%;
     flex-shrink: 0;
     z-index: 10;
     /* 遇见过一次图片宽度很宽超过 slide 导致下一个 slide 也会有这个图片 */
-    overflow: hidden;
+    /* overflow: hidden; */
   }
-  .slide-item{
-    float: left;
-
-    box-sizing: border-box;
-    overflow: hidden;
-    text-align: center;
-  }
-  .slider-group a{
+  .slider-group .slider-dots a{
     display: block;
+    padding: 0px 7px;
     width: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+    /* overflow: hidden; */
     text-decoration: none;
   }
   .slider-group img{
     display: inline-block;
     width: 100%;
+    border-radius: 5px;
+    -webkit-box-shadow:0 0 10px rgba(0, 0, 0, .2);
+    -moz-box-shadow:0 0 10px rgba(0, 0, 0, .2);
+    box-shadow:0 0 10px rgba(0, 0, 0, .2);
   }
 </style>

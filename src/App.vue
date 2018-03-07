@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <swiper :autoplay="autoPlay" :duration="duration" :slidetype="slideType" :data="recommends">
+    <Swiper  :autoplay="autoPlay" :duration="duration" :slidetype="slideType" :recommends="recommends" :color="color" :pagination="pagination">
+
     </Swiper>
   </div>
 </template>
 
 <script>
-import Swiper from '@/components/swiper-slider'
+import Swiper from '@/components/swiper-slider-animate'
 export default {
   name: 'App',
   data () {
@@ -32,9 +33,11 @@ export default {
         linkUrl: 'https://c.y.qq.com/node/m/client/music_headline/index.html?_hidehd=1&_button=2&zid=619582',
         picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M000000Wq2eW3VkzJ9.jpg'
       }],
-      autoPlay: 3000,
+      autoPlay: false,
       duration: 500,
-      slideType: 'left'
+      slideType: 'left',
+      color: '#000',
+      pagination: false
     }
   },
   components: {
