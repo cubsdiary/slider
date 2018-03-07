@@ -35,10 +35,10 @@ export default {
         picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M000000Wq2eW3VkzJ9.jpg'
       }],
       autoPlay: 5000,
-      duration: 5000,
+      duration: 500,
       slideType: 'left',
       color: '#000',
-      pagination: false
+      pagination: true
     }
   },
   components: {

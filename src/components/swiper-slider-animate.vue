@@ -63,8 +63,8 @@ export default {
       sliderGroupDom: 0,
       sliderGroupNow: 0,
       screenWidth: 0,
-      groupAnimateTime: 'all 5s forwards',
-      miniWidth: 0.5,
+      groupAnimateTime: 'all 500ms forwards',
+      miniWidth: 0.74,
       bigWidth: 0.88,
       cutwidth: 0,
       addwidth: 0,
@@ -117,7 +117,7 @@ export default {
         if (X > 0) {
           if (moveTime > 20 && moveTime < 300) {
             this.nextImg()
-          } else if (X >= this.sliderGroupNow/2) {
+          } else if (X >= this.sliderGroupDom/2) {
             this.nextImg()
           } else {
             this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
@@ -126,7 +126,7 @@ export default {
         } else {
           if (moveTime > 20 && moveTime < 300) {
             this.prevImg()
-          } else if (Math.abs(X) >= this.sliderGroupNow/2) {
+          } else if (Math.abs(X) >= this.sliderGroupDom/2) {
             this.prevImg()
           } else {
             this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
@@ -143,6 +143,7 @@ export default {
       let _touchMove = event.touches[0]
       this.touchInfo.moveX = _touchMove.pageX
       this.touchInfo.moveY = _touchMove.pageY
+      this.bridge = this.touchInfo.startX - this.touchInfo.moveX
       this.groupAnimate(0)
       if (this.touchInfo.startX > this.touchInfo.moveX) {
         this.animateImg(false, 0)
@@ -264,7 +265,6 @@ export default {
         this.groupAnimate(time)
       } else {
         this.animateTime = 0
-        this.bridge = this.touchInfo.startX - this.touchInfo.moveX
         this.translate3d = 'translate3d(' + (this.domLeft - this.bridge/this.screenWidth*this.sliderGroupNow) + 'px, 0px, 0px)'
       }
     },
@@ -299,7 +299,7 @@ export default {
   .slider{
     position: relative;
     width: 100%;
-    height: 300px;
+    /* height: 300px; */
     background: red;
     padding: 5px 0px
     /* overflow: hidden; */
