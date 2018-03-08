@@ -38,7 +38,7 @@ export default {
       duration: 500,
       slideType: 'left',
       color: '#000',
-      pagination: true
+      pagination: false
     }
   },
   components: {
