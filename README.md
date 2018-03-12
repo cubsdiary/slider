@@ -1,6 +1,5 @@
-# swiper
-
-> A Vue.js project
+# slider
+> 基于vue 开发的多功能 轮播图
 
 ## Build Setup
 
