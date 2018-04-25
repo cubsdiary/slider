@@ -1,7 +1,7 @@
 <template>
   <div class="slider" @touchmove.prevent ref="slider">
-    <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
-      <div class="slider-dots" v-for="(item, index) in imgs" :key="index" :style="{width: groupWidth(index), animation: groupAnimateTime}">
+    <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + '0ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
+      <div class="slider-dots" v-for="(item, index) in imgs" :key="index" :style="{width: groupWidth(index), transition: groupAnimateTime}">
         <a :href="item.linkUrl">
           <img :src="item.picUrl" alt="" >
         </a>
@@ -52,7 +52,7 @@ export default {
         startTime: 0,
         endTime: 0
       },
-      imgIndex: 1,
+      imgIndex: 2,
       showNumber: 0,
       domLeft: 0,
       bridge: 0,
@@ -63,7 +63,7 @@ export default {
       sliderGroupDom: 0,
       sliderGroupNow: 0,
       screenWidth: 0,
-      groupAnimateTime: 'all 500ms forwards',
+      groupAnimateTime: 'all 2000ms',
       miniWidth: 0.74,
       bigWidth: 0.88,
       cutwidth: 0,
@@ -76,7 +76,7 @@ export default {
   computed: {
     slidesNumber () {
       let number = []
-      for(let i = 0; i < this.recommends.length - 4; i++) {
+      for(let i = 0; i < this.recommends.length - 6; i++) {
         number.push(i)
       }
       return number
@@ -84,13 +84,17 @@ export default {
     imgs () {
       let imgs = this.recommends
       let start = this.recommends[0]
+      let start1 = this.recommends[2]
       let startNext = this.recommends[1]
       let endPrev = this.recommends[this.recommends.length - 2]
       let end = this.recommends[this.recommends.length - 1]
+      let end1 = this.recommends[this.recommends.length - 3]
       imgs.push(start)
       imgs.push(startNext)
+      imgs.push(start1)
       imgs.unshift(end)
       imgs.unshift(endPrev)
+      imgs.unshift(end1)
       return imgs
     }
   },
@@ -190,10 +194,10 @@ export default {
     transitionEnd () {
       this.bridge = 0
       clearTimeout(this.timer)
-      if (this.imgIndex >= this.imgs.length - 3) {
-        this.imgIndex = 1
+      if (this.imgIndex >= this.imgs.length - 4) {
+        this.imgIndex = 2
         this.goBackImg(0)
-      } else if (this.imgIndex <= 0) {
+      } else if (this.imgIndex < 1) {
         this.imgIndex = this.slidesNumber.length
         this.goBackImg(0)
       }
@@ -214,7 +218,7 @@ export default {
         time = parseInt((this.sliderGroupNow - Math.abs(this.bridge)) / this.sliderGroupNow * this.duration)
       }
       this.animateImg(true, time)
-      console.log(this.addwidth, this.cutwidth)
+      console.log(this.addwidth, this.cutwidth, '-----next')
     },
     /*      左向右滑动， 下一页        */
     prevImg (text) {
@@ -251,16 +255,18 @@ export default {
       }
     },
     groupAnimate (time) {
-      this.groupAnimateTime = 'all '+ time +'ms forwards'
+      this.groupAnimateTime = 'all 2000ms'
     },
     goBackImg (time) {
       this.animateTime = time
       this.domLeft = this.sliderDom - this.imgIndex * this.sliderGroupDom
+      this.groupAnimateTime = 'all '+ time +'ms'
       this.translate3d = 'translate3d(' + (this.domLeft) + 'px, 0px, 0px)'
     },
     /*      动画效果，设置移动后的坐标 和 动画时间        */
     animateImg (flag, time) {
       if (flag) {
+        console.log(time)
         this.goBackImg(time)
         this.groupAnimate(time)
       } else {
