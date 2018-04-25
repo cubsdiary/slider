@@ -1,7 +1,7 @@
 <template>
   <div class="slider" @touchmove.prevent ref="slider">
-    <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
-      <div class="slider-dots" v-for="(item, index) in imgs" :key="index" :style="{width: groupWidth(index), animation: groupAnimateTime}">
+    <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM" @click="tapDom">
+      <div class="slider-dots" v-for="(item, index) in imgs" :key="index" :style="{width: groupWidth(index), transition: groupAnimateTime}">
         <a :href="item.linkUrl">
           <img :src="item.picUrl" alt="" >
         </a>
@@ -25,7 +25,7 @@ export default {
     },
     /*是否自动播放*/
     autoplay: {
-      default: 5000
+      default: 500
     },
     slidetype: {
       default: 'right'
@@ -52,7 +52,7 @@ export default {
         startTime: 0,
         endTime: 0
       },
-      imgIndex: 1,
+      imgIndex: 2,
       showNumber: 0,
       domLeft: 0,
       bridge: 0,
@@ -63,7 +63,7 @@ export default {
       sliderGroupDom: 0,
       sliderGroupNow: 0,
       screenWidth: 0,
-      groupAnimateTime: 'all 500ms forwards',
+      groupAnimateTime: 'all 500ms',
       miniWidth: 0.74,
       bigWidth: 0.88,
       cutwidth: 0,
@@ -76,7 +76,7 @@ export default {
   computed: {
     slidesNumber () {
       let number = []
-      for(let i = 0; i < this.recommends.length - 4; i++) {
+      for(let i = 0; i < this.recommends.length - 6; i++) {
         number.push(i)
       }
       return number
@@ -84,19 +84,24 @@ export default {
     imgs () {
       let imgs = this.recommends
       let start = this.recommends[0]
+      let start1 = this.recommends[2]
       let startNext = this.recommends[1]
       let endPrev = this.recommends[this.recommends.length - 2]
       let end = this.recommends[this.recommends.length - 1]
+      let end1 = this.recommends[this.recommends.length - 3]
       imgs.push(start)
       imgs.push(startNext)
+      imgs.push(start1)
       imgs.unshift(end)
       imgs.unshift(endPrev)
+      imgs.unshift(end1)
       return imgs
     }
   },
   methods: {
     /*       手指触屏触发        */
     touchS (event) {
+      console.log('touchS')
       clearTimeout(this.timer)
       let _touchStart = event.touches[0]
       this.touchInfo.startX = _touchStart.pageX
@@ -105,6 +110,7 @@ export default {
     },
     /*       手指移开触发        */
     touchE (event) {
+      console.log('touchE')
       let _touchEnd = event.changedTouches[0]
       this.touchInfo.endX = _touchEnd.pageX
       this.touchInfo.endY = _touchEnd.pageY
@@ -112,7 +118,6 @@ export default {
       let X = this.touchInfo.startX - this.touchInfo.endX
       let Y = this.touchInfo.startY - this.touchInfo.endY
       let moveTime = this.touchInfo.endTime - this.touchInfo.startTime
-
       if (Math.abs(X) > Math.abs(Y)){
         if (X > 0) {
           if (moveTime > 20 && moveTime < 300) {
@@ -134,12 +139,13 @@ export default {
           }
         }
       } else {
-        this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
-        this.goBackGroup(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
+        // this.goBackImg(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
+        // this.goBackGroup(parseInt(Math.abs(this.bridge) / this.sliderGroupNow * this.duration))
       }
     },
     /*       手指触屏移动触发        */
     touchM (event) {
+      console.log('touchM')
       let _touchMove = event.touches[0]
       this.touchInfo.moveX = _touchMove.pageX
       this.touchInfo.moveY = _touchMove.pageY
@@ -152,6 +158,9 @@ export default {
         this.animateImg(false, 0)
         this.setGroupWidth('prev')
       }
+    },
+    tapDom () {
+      console.log('tapDom')
     },
     goBackGroup (time) {
       this.groupAnimate(time)
@@ -190,10 +199,10 @@ export default {
     transitionEnd () {
       this.bridge = 0
       clearTimeout(this.timer)
-      if (this.imgIndex >= this.imgs.length - 3) {
-        this.imgIndex = 1
+      if (this.imgIndex >= this.imgs.length - 4) {
+        this.imgIndex = 2
         this.goBackImg(0)
-      } else if (this.imgIndex <= 0) {
+      } else if (this.imgIndex < 1) {
         this.imgIndex = this.slidesNumber.length
         this.goBackImg(0)
       }
@@ -214,7 +223,7 @@ export default {
         time = parseInt((this.sliderGroupNow - Math.abs(this.bridge)) / this.sliderGroupNow * this.duration)
       }
       this.animateImg(true, time)
-      console.log(this.addwidth, this.cutwidth)
+      console.log(this.addwidth, this.cutwidth, '-----next')
     },
     /*      左向右滑动， 下一页        */
     prevImg (text) {
@@ -251,17 +260,19 @@ export default {
       }
     },
     groupAnimate (time) {
-      this.groupAnimateTime = 'all '+ time +'ms forwards'
+      this.groupAnimateTime = 'all ' + time + 'ms'
     },
     goBackImg (time) {
       this.animateTime = time
       this.domLeft = this.sliderDom - this.imgIndex * this.sliderGroupDom
+      this.groupAnimateTime = 'all '+ time +'ms'
       this.translate3d = 'translate3d(' + (this.domLeft) + 'px, 0px, 0px)'
     },
     /*      动画效果，设置移动后的坐标 和 动画时间        */
     animateImg (flag, time) {
       if (flag) {
-        this.goBackImg(time)
+        console.log(time)
+        this.goBackImg(Math.abs(time))
         this.groupAnimate(time)
       } else {
         this.animateTime = 0
@@ -274,8 +285,10 @@ export default {
       this.sliderGroupDom = parseFloat((this.screenWidth * this.miniWidth).toFixed(2))
       this.sliderGroupNow = parseFloat((this.screenWidth * this.bigWidth).toFixed(2))
       this.sliderDom = -(this.sliderGroupDom - (this.screenWidth - this.sliderGroupNow) / 2)
+      this.getGroupDom()
       this.goBackImg(0)
       this.player()
+
     },
     /*      自动播放       */
     player () {
@@ -301,8 +314,8 @@ export default {
     width: 100%;
     height: 200px;
     background: red;
-    padding: 5px 0px
-    /* overflow: hidden; */
+    padding: 5px 0px;
+    overflow: hidden;
   }
   .pagination{
     position: absolute;
