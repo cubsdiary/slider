@@ -17,7 +17,7 @@ npm run build
 
 # slider 里面包括了三类轮播 图
 ## slider-common (通用的)
-![手机预览](https://www.pinkpig.top/image/slider_common.png)
+![手机预览](https://www.pinkpig.top/image/slider_common1.png)
 
 [在线预览](https://www.pinkpig.top/slider/slider1/#/)
 ![手机预览](https://www.pinkpig.top/image/slider_link_common.png)
