@@ -19,11 +19,17 @@ npm run build
 ## slider-common (通用的)
 ![布局](https://www.pinkpig.top/image/slider_common.png)
 
+[在线预览](https://www.pinkpig.top/slider/slider1/#/)
+
 ## slider-special (仿慕课网)
 ![布局](https://www.pinkpig.top/image/slider_special.png)
 
+[在线预览](https://www.pinkpig.top/slider/slider2/#/)
+
 ## slider-animate (仿爱奇艺泡泡社区 发现栏目 的轮播图)
 ![布局](https://www.pinkpig.top/image/slider_animate.png)
+
+[在线预览](https://www.pinkpig.top/slider/slider3/#/)
 
 
 
