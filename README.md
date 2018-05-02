@@ -15,16 +15,14 @@ npm run build
 
 ```
 
-## Build Setup
-
-slider 里面包括了三类轮播 图
-slider-common (通用的)
+# slider 里面包括了三类轮播 图
+## slider-common (通用的)
 ![布局](https://www.pinkpig.top/image/slider_common.png)
 
-slider-special (仿慕课网)
+## slider-special (仿慕课网)
 ![布局](https://www.pinkpig.top/image/slider_special.png)
 
-slider-animate (仿爱奇艺泡泡社区 发现栏目 的轮播图)
+## slider-animate (仿爱奇艺泡泡社区 发现栏目 的轮播图)
 ![布局](https://www.pinkpig.top/image/slider_animate.png)
 
 
