@@ -9,7 +9,8 @@
 <script>
 // import Swiper from '@/components/swiper-slider-common'
 // import Swiper from '@/components/swiper-slider-special'
-import Swiper from '@/components/swiper-slider-animate'
+// import Swiper from '@/components/swiper-slider-animate'
+import Swiper from '@/components/swiper-slider-view'
 export default {
   name: 'App',
   data () {
