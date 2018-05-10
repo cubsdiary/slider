@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Swiper  :autoplay="autoPlay" :duration="duration" :slidetype="slideType" :recommends="recommends" :color="color" :pagination="pagination">
+    <Swiper :duration="duration" :recommends="recommends" @tapcard="_tapCard">
 
     </Swiper>
   </div>
@@ -41,6 +41,11 @@ export default {
       slideType: 'left',
       color: '#000',
       pagination: true
+    }
+  },
+  methods: {
+    _tapCard (id) {
+      console.log(id)
     }
   },
   components: {

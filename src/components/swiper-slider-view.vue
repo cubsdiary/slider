@@ -2,8 +2,8 @@
   <div class="slider" @touchmove.prevent ref="slider">
     <div class="slider-group" ref="sliderGroup" @transitionend="transitionEnd" :style="{transform: translate3d, transitionDuration: animateTime + 'ms'}"  @touchstart="touchS" @touchend="touchE" @touchmove="touchM">
       <div class="slider-dots" v-for="(item, index) in imgs" :key="index" :style="{width: groupWidth(index), transition: groupAnimateTime}">
-        <a :href="index === 0 || index === imgs.length ? '' : item.linkUrl">
-          <img :src="item.picUrl" alt="" v-if="index !== 0 && index !== imgs.length">
+        <a :href="item.linkUrl" @click="tapDom(index)">
+          <img :src="item.picUrl" alt="" >
         </a>
       </div>
     </div>
@@ -38,12 +38,10 @@ export default {
         endTime: 0
       },
       imgIndex: 0,
-      showNumber: 0,
       domLeft: 0,
       bridge: 0,
       translate3d: '',
       sliderDom: 0,
-      timer: null,
       animateTime: 0,
       sliderGroupDom: 0,
       sliderGroupNow: 0,
@@ -61,17 +59,12 @@ export default {
   computed: {
     imgs () {
       let imgs = this.recommends
-      let start = this.recommends[0]
-      let end = this.recommends[this.recommends.length - 1]
-      imgs.push(start)
-      imgs.unshift(end)
       return imgs
     }
   },
   methods: {
     /*       手指触屏触发        */
     touchS (event) {
-      clearTimeout(this.timer)
       let _touchStart = event.touches[0]
       this.touchInfo.startX = _touchStart.pageX
       this.touchInfo.startY = _touchStart.pageY
@@ -86,7 +79,6 @@ export default {
       let X = this.touchInfo.startX - this.touchInfo.endX
       let Y = this.touchInfo.startY - this.touchInfo.endY
       let moveTime = this.touchInfo.endTime - this.touchInfo.startTime
-      if ()
       if (Math.abs(X) > Math.abs(Y)){
         if (X > 0) {
           if (moveTime > 20 && moveTime < 300) {
@@ -128,8 +120,8 @@ export default {
         this.setGroupWidth('prev')
       }
     },
-    tapDom () {
-      console.log('tapDom')
+    tapDom (index) {
+      this.$emit('tapcard', index)
     },
     goBackGroup (time) {
       this.groupAnimate(time)
@@ -138,9 +130,13 @@ export default {
       this.nowDom.style.width = (this.bigWidth * 100) + '%'
     },
     getGroupDom () {
-      this.prevDom = document.getElementsByClassName('slider-dots')[this.imgIndex]
-      this.nowDom = document.getElementsByClassName('slider-dots')[this.imgIndex + 1]
-      this.nextDom = document.getElementsByClassName('slider-dots')[this.imgIndex + 2]
+      if (this.imgIndex > 0) {
+        this.prevDom = document.getElementsByClassName('slider-dots')[this.imgIndex - 1]
+      }
+      this.nowDom = document.getElementsByClassName('slider-dots')[this.imgIndex]
+      if (this.imgIndex < this.imgs.length -1) {
+        this.nextDom = document.getElementsByClassName('slider-dots')[this.imgIndex + 1]
+      }
     },
     setGroupWidth (txt) {
       this.getGroupDom()
@@ -156,10 +152,10 @@ export default {
       } else  if (this.addwidth > this.bigWidth) {
         this.addwidth = this.bigWidth
       }
-      if (txt === 'next') {
+      if (txt === 'next' && this.imgIndex < this.imgs.length - 1) {
         this.nowDom.style.width = (this.cutwidth * 100) + '%'
         this.nextDom.style.width = (this.addwidth * 100) + '%'
-      } else if (txt === 'prev') {
+      } else if (txt === 'prev' && this.imgIndex > 0) {
         this.nowDom.style.width = (this.cutwidth * 100) + '%'
         this.prevDom.style.width = (this.addwidth * 100) + '%'
       }
@@ -171,7 +167,9 @@ export default {
     },
     /*      右向左滑动， 下一页        */
     nextImg (text) {
-      this.imgIndex += 1
+      if (this.imgIndex !== this.imgs.length - 1) {
+        this.imgIndex += 1
+      }
       let time = 0
       if (text === 'init') {
         time = this.duration
@@ -182,7 +180,9 @@ export default {
     },
     /*      左向右滑动， 下一页        */
     prevImg (text) {
-      this.imgIndex -= 1
+      if (this.imgIndex !== 0) {
+        this.imgIndex -= 1
+      }
       let time = 0
       if (text === 'init') {
         time = this.duration
@@ -191,15 +191,8 @@ export default {
       }
       this.animateImg(true, time)
     },
-    flipNumber (text) {
-      if (text === 'next') {
-        this.showNumber += 1
-      } else if (text === 'prev') {
-        this.showNumber -= 1
-      }
-    },
     groupWidth (index) {
-      if (index === this.imgIndex + 1) {
+      if (index === this.imgIndex) {
         return this.bigWidth * 100 + '%'
       } else {
         return this.miniWidth * 100 + '%'
@@ -210,7 +203,11 @@ export default {
     },
     goBackImg (time) {
       this.animateTime = time
-      this.domLeft = this.sliderDom - this.imgIndex * this.sliderGroupDom
+      if (this.imgIndex === 0) {
+        this.domLeft = 22.5
+      } else {
+        this.domLeft = this.sliderDom - (this.imgIndex - 1) * this.sliderGroupDom
+      }
       this.groupAnimateTime = 'all '+ time +'ms'
       this.translate3d = 'translate3d(' + (this.domLeft) + 'px, 0px, 0px)'
     },
@@ -230,7 +227,7 @@ export default {
       this.sliderGroupDom = parseFloat((this.screenWidth * this.miniWidth).toFixed(2))
       this.sliderGroupNow = parseFloat((this.screenWidth * this.bigWidth).toFixed(2))
       this.sliderDom = -(this.sliderGroupDom - (this.screenWidth - this.sliderGroupNow) / 2)
-      this.getGroupDom()
+      // this.getGroupDom()
       this.goBackImg(0)
     }
   },
